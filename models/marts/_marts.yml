@@ -1,0 +1,369 @@
+models:
+  - name: dim_customers
+    description: |
+      Customer dimension table with lifetime metrics and segmentation.
+
+      **Grain:** One row per customer_id
+      **Update Frequency:** Daily
+
+    config:
+      contract:
+        enforced: true
+
+    columns:
+      - name: customer_key
+        description: "Surrogate key for dimension"
+        data_type: string
+        tests:
+          - unique
+          - not_null
+
+      - name: customer_id
+        description: "Natural key from source system"
+        data_type: string
+        constraints:
+          - type: not_null
+        tests:
+          - unique
+          - not_null
+
+      - name: customer_unique_id
+        description: "Deduplicated customer identifier"
+        data_type: string
+        tests:
+          - not_null
+
+      - name: customer_city
+        description: "Brazilian city name"
+        data_type: string
+        tests:
+          - not_null
+
+      - name: customer_state
+        description: "Brazilian state code (2 letters)"
+        data_type: string
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_value_lengths_to_equal:
+              value: 2
+
+      - name: customer_zip_code
+        description: "Zip code prefix"
+        data_type: string
+
+      - name: customer_region
+        description: "Geographic region of Brazil"
+        data_type: string
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['Southeast', 'South', 'Northeast', 'Central-West', 'North']
+
+      - name: lifetime_orders
+        description: "Total number of completed orders"
+        data_type: int64
+        tests:
+          - not_null
+          - is_not_negative
+
+      - name: lifetime_revenue
+        description: "Total revenue from customer (BRL)"
+        data_type: numeric
+        tests:
+          - not_null
+          - is_not_negative
+
+      - name: avg_order_value
+        description: "Average order value (BRL)"
+        data_type: numeric
+        tests:
+          - not_null
+          - is_not_negative
+
+      - name: max_order_value
+        description: "Highest single order value (BRL)"
+        data_type: numeric
+        tests:
+          - not_null
+          - is_not_negative
+
+      - name: lifetime_items
+        description: "Total items purchased"
+        data_type: int64
+        tests:
+          - not_null
+          - is_not_negative
+
+      - name: first_order_date
+        description: "Date of first order"
+        data_type: date
+
+      - name: last_order_date
+        description: "Date of most recent order"
+        data_type: date
+
+      - name: customer_lifespan_days
+        description: "Days between first and last order"
+        data_type: int64
+        tests:
+          - is_not_negative
+
+      - name: avg_delivery_days
+        description: "Average delivery time in days"
+        data_type: float64
+
+      - name: late_deliveries
+        description: "Count of late deliveries"
+        data_type: int64
+        tests:
+          - is_not_negative
+
+      - name: customer_segment
+        description: "Value-based customer segment"
+        data_type: string
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['VIP', 'High Value', 'Medium Value', 'Low Value', 'No Orders']
+
+      - name: purchase_frequency
+        description: "Frequency classification"
+        data_type: string
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['Frequent', 'Repeat', 'One-Time', 'Never Purchased']
+
+      - name: late_delivery_rate
+        description: "Percentage of orders delivered late"
+        data_type: float64
+        tests:
+          - dbt_expectations.expect_column_values_to_be_between:
+              min_value: 0
+              max_value: 100
+
+      - name: _loaded_at
+        description: "ETL load timestamp"
+        data_type: timestamp
+
+  - name: fct_orders
+    description: |
+      Order fact table for analytics and BI reporting.
+
+      **Grain:** One row per order
+      **Materialization:** Incremental
+
+    config:
+      contract:
+        enforced: true
+
+    columns:
+      - name: order_id
+        description: "Primary key"
+        data_type: string
+        constraints:
+          - type: not_null
+          - type: primary_key
+        tests:
+          - unique
+          - not_null
+
+      - name: customer_id
+        description: "Foreign key to dim_customers"
+        data_type: string
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_customers')
+              field: customer_id
+
+      - name: order_status
+        description: "Current order status"
+        data_type: string
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['delivered', 'shipped', 'processing', 'canceled', 'invoiced', 'unavailable', 'created', 'approved']
+
+      - name: order_date
+        description: "Order date"
+        data_type: date
+        tests:
+          - not_null
+
+      - name: ordered_at
+        description: "Order timestamp"
+        data_type: timestamp
+        tests:
+          - not_null
+
+      - name: approved_at
+        description: "Order approval timestamp"
+        data_type: timestamp
+
+      - name: shipped_at
+        description: "Order shipped timestamp"
+        data_type: timestamp
+
+      - name: delivered_at
+        description: "Order delivered timestamp"
+        data_type: timestamp
+
+      - name: estimated_delivery_at
+        description: "Estimated delivery timestamp"
+        data_type: timestamp
+
+      - name: order_year
+        data_type: int64
+
+      - name: order_month
+        data_type: int64
+
+      - name: order_quarter
+        data_type: int64
+
+      - name: order_week
+        data_type: int64
+
+      - name: order_day_of_week
+        data_type: int64
+
+      - name: is_weekend
+        data_type: boolean
+
+      - name: customer_city
+        data_type: string
+
+      - name: customer_state
+        data_type: string
+
+      - name: customer_region
+        data_type: string
+
+      - name: primary_category
+        description: "Main product category"
+        data_type: string
+        tests:
+          - not_null
+
+      - name: primary_category_group
+        data_type: string
+        tests:
+          - not_null
+
+      - name: item_count
+        data_type: int64
+        tests:
+          - not_null
+
+      - name: unique_products
+        data_type: int64
+        tests:
+          - not_null
+
+      - name: subtotal
+        data_type: numeric
+        tests:
+          - not_null
+          - is_not_negative
+
+      - name: freight_total
+        data_type: numeric
+        tests:
+          - not_null
+          - is_not_negative
+
+      - name: order_total
+        data_type: numeric
+        tests:
+          - not_null
+
+      - name: avg_item_price
+        data_type: numeric
+
+      - name: delivery_days
+        data_type: int64
+
+      - name: is_late_delivery
+        data_type: boolean
+
+      - name: days_late
+        data_type: int64
+
+      - name: order_size_bucket
+        data_type: string
+        tests:
+          - accepted_values:
+              values: ['Small', 'Medium', 'Large', 'Premium']
+
+      - name: delivery_sla_status
+        data_type: string
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['Met', 'Missed', 'Canceled', 'In Progress']
+
+      - name: _loaded_at
+        data_type: timestamp
+
+unit_tests:
+  - name: test_customer_segment_vip
+    description: "VIP requires >= $500 revenue AND >= 3 orders"
+    model: dim_customers
+    overrides:
+      macros:
+        mode: "customer_region"
+    given:
+      - input: ref('int_orders_enriched')
+        format: dict
+        rows:
+          - {order_id: 'o1', customer_id: 'c1', customer_unique_id: 'cu1', order_status: 'delivered', order_total: 200.0, order_date: '2017-01-01', delivery_days: 5, is_late_delivery: false, customer_region: 'Southeast', item_count: 1}
+          - {order_id: 'o2', customer_id: 'c1', customer_unique_id: 'cu1', order_status: 'delivered', order_total: 200.0, order_date: '2017-02-01', delivery_days: 5, is_late_delivery: false, customer_region: 'Southeast', item_count: 1}
+          - {order_id: 'o3', customer_id: 'c1', customer_unique_id: 'cu1', order_status: 'delivered', order_total: 150.0, order_date: '2017-03-01', delivery_days: 5, is_late_delivery: false, customer_region: 'Southeast', item_count: 1}
+      - input: ref('stg_customers')
+        format: dict
+        rows:
+          - {customer_id: 'c1', customer_unique_id: 'cu1', customer_city: 'sao paulo', customer_state: 'SP', customer_zip_code: '01310', customer_region: 'Southeast'}
+    expect:
+      format: dict
+      rows:
+        - {customer_id: 'c1', customer_segment: 'VIP'}
+
+  - name: test_customer_segment_high_value
+    description: "High Value: >= $300 but < 3 orders"
+    model: dim_customers
+    overrides:
+      macros:
+        mode: "customer_region"
+    given:
+      - input: ref('int_orders_enriched')
+        format: dict
+        rows:
+          - {order_id: 'o1', customer_id: 'c2', customer_unique_id: 'cu2', order_status: 'delivered', order_total: 350.0, order_date: '2017-01-01', delivery_days: 5, is_late_delivery: false, customer_region: 'Southeast', item_count: 2}
+      - input: ref('stg_customers')
+        format: dict
+        rows:
+          - {customer_id: 'c2', customer_unique_id: 'cu2', customer_city: 'rio', customer_state: 'RJ', customer_zip_code: '20000', customer_region: 'Southeast'}
+    expect:
+      format: dict
+      rows:
+        - {customer_id: 'c2', customer_segment: 'High Value'}
+
+  - name: test_customer_segment_no_orders
+    description: "Customers with no orders get 'No Orders' segment"
+    model: dim_customers
+    overrides:
+      macros:
+        mode: "customer_region"
+    given:
+      - input: ref('int_orders_enriched')
+        format: dict
+        rows: []
+      - input: ref('stg_customers')
+        format: dict
+        rows:
+          - {customer_id: 'c3', customer_unique_id: 'cu3', customer_city: 'brasilia', customer_state: 'DF', customer_zip_code: '70000', customer_region: 'Central-West'}
+    expect:
+      format: dict
+      rows:
+        - {customer_id: 'c3', customer_segment: 'No Orders'}

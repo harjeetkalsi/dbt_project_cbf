@@ -1,0 +1,176 @@
+version: 2
+
+models:
+  - name: stg_orders
+    description: "Cleaned order data with delivery metrics"
+    
+    columns:
+      - name: order_id
+        description: "Primary key - unique order identifier"
+        tests:
+          - unique
+          - not_null
+      
+      - name: customer_id
+        description: "Foreign key to customers"
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_customers')
+              field: customer_id
+              config:
+                severity: warn  # Sample data may have orphaned records
+
+      - name: order_status
+        description: "Current status of the order"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['delivered', 'shipped', 'processing', 'canceled', 'invoiced', 'unavailable', 'created', 'approved']
+      
+      - name: ordered_at
+        description: "Timestamp when order was placed"
+        tests:
+          - not_null
+      
+      - name: order_date
+        description: "Date of order (for partitioning)"
+        tests:
+          - not_null
+      
+      - name: delivery_days
+        description: "Number of days from order to delivery"
+        tests:
+          - dbt_expectations.expect_column_values_to_be_between:
+              min_value: 0
+              max_value: 180
+              row_condition: "delivery_days is not null"
+              config:
+                severity: warn
+      
+      - name: is_late_delivery
+        description: "True if delivered after estimated date"
+        tests:
+          - not_null
+
+  - name: stg_order_items
+    description: "Order line items with pricing"
+    
+    columns:
+      - name: order_item_key
+        description: "Surrogate key (order_id + item_sequence)"
+        tests:
+          - unique
+          - not_null
+      
+      - name: order_id
+        description: "Foreign key to orders"
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_orders')
+              field: order_id
+              config:
+                severity: warn  # Sample data may have orphaned records
+      
+      - name: product_id
+        description: "Foreign key to products"
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_products')
+              field: product_id
+              config:
+                severity: warn  # Sample data may have orphaned records
+      
+      - name: item_price
+        description: "Price in Brazilian Real"
+        tests:
+          - not_null
+          - is_positive
+      
+      - name: item_freight
+        description: "Shipping cost"
+        tests:
+          - not_null
+          - is_not_negative
+      
+      - name: item_total
+        description: "Price + freight"
+        tests:
+          - not_null
+          - is_positive
+
+  - name: stg_customers
+    description: "Customer data with Brazilian geography"
+    
+    columns:
+      - name: customer_id
+        description: "Primary key"
+        tests:
+          - unique
+          - not_null
+      
+      - name: customer_unique_id
+        description: "Unique customer across orders"
+        tests:
+          - not_null
+      
+      - name: customer_state
+        description: "Brazilian state code"
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_value_lengths_to_equal:
+              value: 2
+      
+      - name: customer_region
+        description: "Geographic region of Brazil"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['Southeast', 'South', 'Northeast', 'Central-West', 'North']
+
+  - name: stg_products
+    description: "Product catalog with dimensions"
+    
+    columns:
+      - name: product_id
+        description: "Primary key"
+        tests:
+          - unique
+          - not_null
+      
+      - name: weight_grams
+        description: "Product weight"
+        tests:
+          - is_not_negative:
+              config:
+                severity: warn
+      
+      - name: size_category
+        description: "Size classification"
+        tests:
+          - accepted_values:
+              values: ['Small', 'Medium', 'Large', 'Extra Large']
+              config:
+                where: "size_category is not null"
+
+  - name: stg_product_categories
+    description: "Category translation table"
+    
+    columns:
+      - name: category_name_pt
+        description: "Portuguese category name (primary key)"
+        tests:
+          - unique
+          - not_null
+      
+      - name: category_name_en
+        description: "English translation"
+        tests:
+          - not_null
+      
+      - name: category_group
+        description: "High-level category grouping"
+        tests:
+          - not_null

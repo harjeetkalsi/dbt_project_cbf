@@ -1,0 +1,78 @@
+[
+  {
+    "timestamp": "2025-12-24T18:08:43.710457",
+    "total_time": 20.95,
+    "model_count": 3,
+    "slowest_model": {
+      "node": "fct_orders",
+      "type": "model",
+      "unique_id": "model.dbt_advanced_olist.fct_orders",
+      "status": "success",
+      "total_seconds": 9.04,
+      "compile_seconds": 0.1,
+      "execute_seconds": 8.83
+    },
+    "avg_time": 6.983333333333333,
+    "layer_breakdown": {
+      "staging": 0.0,
+      "intermediate": 3.99,
+      "marts": 16.96,
+      "other": 0.0
+    }
+  },
+  {
+    "timestamp": "2025-12-24T18:38:46.835125",
+    "total_time": 0,
+    "model_count": 0,
+    "slowest_model": null,
+    "avg_time": 0,
+    "layer_breakdown": {
+      "staging": 0.0,
+      "intermediate": 0.0,
+      "marts": 0.0,
+      "other": 0.0
+    }
+  },
+  {
+    "timestamp": "2025-12-24T20:54:03.490455",
+    "total_time": 75.11000000000001,
+    "model_count": 10,
+    "slowest_model": {
+      "node": "dim_date",
+      "type": "model",
+      "unique_id": "model.dbt_advanced_olist.dim_date",
+      "status": "success",
+      "total_seconds": 15.7,
+      "compile_seconds": 10.3,
+      "execute_seconds": 5.38
+    },
+    "avg_time": 7.511000000000001,
+    "layer_breakdown": {
+      "staging": 33.120000000000005,
+      "intermediate": 5.16,
+      "marts": 36.83,
+      "other": 0.0
+    }
+  },
+  {
+    "timestamp": "2025-12-24T22:03:36.312349",
+    "total_time": 4.76,
+    "model_count": 1,
+    "slowest_model": {
+      "node": "test_date_macro",
+      "type": "model",
+      "unique_id": "model.dbt_advanced_olist.test_date_macro",
+      "status": "success",
+      "total_seconds": 4.76,
+      "compile_seconds": 0.06,
+      "execute_seconds": 4.68
+    },
+    "avg_time": 4.76,
+    "layer_breakdown": {
+      "staging": 0.0,
+      "intermediate": 0.0,
+      "marts": 0.0,
+      "other": 4.76
+    }
+  }
+]

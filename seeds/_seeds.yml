@@ -1,0 +1,29 @@
+version: 2
+
+seeds:
+  - name: order_status_codes
+    description: "Reference table for order status codes and their meanings"
+    columns:
+      - name: status_code
+        description: "Short status code"
+        tests:
+          - unique
+          - not_null
+      - name: status_name
+        description: "Display name"
+      - name: is_terminal
+        description: "Whether this is a final state"
+
+  - name: brazilian_states
+    description: "Brazilian states with regions and timezones"
+    columns:
+      - name: state_code
+        description: "Two-letter state code"
+        tests:
+          - unique
+          - not_null
+      - name: region
+        description: "Geographic region"
+        tests:
+          - accepted_values:
+              values: ['North', 'Northeast', 'Central-West', 'Southeast', 'South']

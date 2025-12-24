@@ -1,0 +1,9 @@
+status_code,status_name,status_description,is_terminal,sort_order
+created,Created,Order has been created,false,1
+approved,Approved,Payment approved,false,2
+invoiced,Invoiced,Invoice generated,false,3
+processing,Processing,Order being prepared,false,4
+shipped,Shipped,Order shipped to carrier,false,5
+delivered,Delivered,Order delivered to customer,true,6
+canceled,Canceled,Order was canceled,true,7
+unavailable,Unavailable,Product unavailable,true,8

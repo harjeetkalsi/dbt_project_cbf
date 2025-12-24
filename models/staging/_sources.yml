@@ -1,0 +1,176 @@
+version: 2
+
+sources:
+  - name: raw_olist
+    description: "Real e-commerce data from Olist Brazilian marketplace (10K orders sample)"
+    database: big-query-dbt-481111
+    schema: raw_olist
+    
+    # ============================================================
+    # SOURCE FRESHNESS CONFIGURATION
+    # ============================================================
+    freshness:
+      warn_after:
+        count: "{{ var('freshness_warn_hours', 24) }}"
+        period: hour
+      error_after:
+        count: "{{ var('freshness_error_hours', 48) }}"
+        period: hour
+    
+    loaded_at_field: _loaded_at  # Column tracking when data was loaded
+    
+    tables:
+      # --------------------------------------------------------
+      # ORDERS TABLE
+      # --------------------------------------------------------
+      - name: orders
+        description: "Real orders from Olist marketplace - 10,000 orders from 2017"
+        identifier: orders
+        
+        columns:
+          - name: order_id
+            description: "Primary key - MD5 hash identifier"
+            tests:
+              - unique
+              - not_null
+          
+          - name: customer_id
+            description: "Foreign key to customers table"
+            tests:
+              - not_null
+              - relationships:
+                  to: source('raw_olist', 'customers')
+                  field: customer_id
+          
+          - name: order_status
+            description: "Current order status"
+            tests:
+              - not_null
+              - accepted_values:
+                  values: ['delivered', 'shipped', 'processing', 'canceled', 'invoiced', 'unavailable', 'created', 'approved']
+          
+          - name: order_purchase_timestamp
+            description: "When the order was placed"
+            tests:
+              - not_null
+              - dbt_expectations.expect_column_values_to_be_of_type:
+                  column_type: timestamp
+      
+      # --------------------------------------------------------
+      # ORDER ITEMS TABLE
+      # --------------------------------------------------------
+      - name: order_items
+        description: "Line items for each order - products purchased"
+        
+        columns:
+          - name: order_id
+            description: "Foreign key to orders"
+            tests:
+              - not_null
+              - relationships:
+                  to: source('raw_olist', 'orders')
+                  field: order_id
+          
+          - name: order_item_id
+            description: "Sequential item number within order"
+            tests:
+              - not_null
+          
+          - name: product_id
+            description: "Foreign key to products"
+            tests:
+              - not_null
+              - relationships:
+                  to: source('raw_olist', 'products')
+                  field: product_id
+          
+          - name: price
+            description: "Item price in Brazilian Real (BRL)"
+            tests:
+              - not_null
+              - dbt_expectations.expect_column_values_to_be_between:
+                  min_value: 0
+                  max_value: 10000
+                  config:
+                    severity: warn
+          
+          - name: freight_value
+            description: "Shipping cost for this item"
+            tests:
+              - not_null
+              - dbt_expectations.expect_column_values_to_be_between:
+                  min_value: 0
+                  max_value: 1000
+      
+      # --------------------------------------------------------
+      # CUSTOMERS TABLE
+      # --------------------------------------------------------
+      - name: customers
+        description: "Customer data with Brazilian geography"
+        
+        columns:
+          - name: customer_id
+            description: "Primary key"
+            tests:
+              - unique
+              - not_null
+          
+          - name: customer_unique_id
+            description: "Unique identifier across orders"
+            tests:
+              - not_null
+          
+          - name: customer_city
+            description: "Brazilian city name"
+            tests:
+              - not_null
+          
+          - name: customer_state
+            description: "Brazilian state code (2 letters)"
+            tests:
+              - not_null
+              - dbt_expectations.expect_column_value_lengths_to_equal:
+                  value: 2
+      
+      # --------------------------------------------------------
+      # PRODUCTS TABLE
+      # --------------------------------------------------------
+      - name: products
+        description: "Product catalog with dimensions"
+        
+        columns:
+          - name: product_id
+            description: "Primary key"
+            tests:
+              - unique
+              - not_null
+          
+          - name: product_category_name
+            description: "Category in Portuguese"
+          
+          - name: product_weight_g
+            description: "Product weight in grams"
+            tests:
+              - dbt_expectations.expect_column_values_to_be_between:
+                  min_value: 0
+                  max_value: 100000
+                  config:
+                    severity: warn
+      
+      # --------------------------------------------------------
+      # PRODUCT CATEGORIES TRANSLATION
+      # --------------------------------------------------------
+      - name: product_category_name_translation
+        description: "Portuguese to English category name mapping"
+        
+        columns:
+          - name: string_field_0
+            description: "Portuguese category name (primary key)"
+            tests:
+              - unique
+              - not_null
+          
+          - name: string_field_1
+            description: "English translation"
+            tests:
+              - not_null

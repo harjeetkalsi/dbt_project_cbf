@@ -1,0 +1,48 @@
+version: 2
+
+models:
+  - name: int_orders_enriched
+    description: "Orders enriched with item aggregations and customer data"
+    
+    columns:
+      - name: order_id
+        description: "Primary key"
+        tests:
+          - unique
+          - not_null
+      
+      - name: order_total
+        description: "Total order value (subtotal + freight)"
+        tests:
+          - not_null
+          - is_not_negative
+      
+      - name: item_count
+        description: "Number of items in order"
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_between:
+              min_value: 0
+              max_value: 100
+
+  - name: int_products_enriched
+    description: "Products enriched with categories and sales metrics"
+    
+    columns:
+      - name: product_id
+        description: "Primary key"
+        tests:
+          - unique
+          - not_null
+      
+      - name: category_name
+        description: "English category name"
+        tests:
+          - not_null
+      
+      - name: listing_quality_score
+        description: "Quality score 0-100"
+        tests:
+          - dbt_expectations.expect_column_values_to_be_between:
+              min_value: 0
+              max_value: 100

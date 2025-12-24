@@ -1,0 +1,68 @@
+# ============================================================
+# DBT PROFILES CONFIGURATION
+# ============================================================
+# Copy this file to ~/.dbt/profiles.yml and update values
+# 
+# IMPORTANT: Never commit actual credentials to git!
+# ============================================================
+
+dbt_advanced_olist:
+  target: dev
+  outputs:
+    # --------------------------------------------------------
+    # DEVELOPMENT ENVIRONMENT
+    # Personal sandbox for iteration
+    # --------------------------------------------------------
+    dev:
+      type: bigquery
+      method: service-account
+      project: "{{ env_var('GCP_PROJECT_ID', 'your-project-id') }}"
+      dataset: "{{ env_var('DBT_DEV_DATASET', 'dbt_dev_yourname') }}"
+      threads: 4
+      timeout_seconds: 300
+      location: US
+      keyfile: "{{ env_var('GCP_KEYFILE_PATH', '~/.dbt/service_account.json') }}"
+      # Dev-specific settings
+      priority: interactive
+      maximum_bytes_billed: 10000000000  # 10GB limit for dev
+    
+    # --------------------------------------------------------
+    # CI/STAGING ENVIRONMENT
+    # Ephemeral schema for PR validation
+    # --------------------------------------------------------
+    ci:
+      type: bigquery
+      method: service-account
+      project: "{{ env_var('GCP_PROJECT_ID') }}"
+      dataset: "{{ env_var('DBT_CI_DATASET', 'dbt_ci') }}"
+      threads: 8
+      timeout_seconds: 600
+      location: US
+      keyfile: "{{ env_var('GCP_KEYFILE_PATH') }}"
+      priority: interactive
+    
+    # --------------------------------------------------------
+    # PRODUCTION ENVIRONMENT
+    # Scheduled runs, full data, strict permissions
+    # --------------------------------------------------------
+    prod:
+      type: bigquery
+      method: service-account
+      project: "{{ env_var('GCP_PROJECT_ID') }}"
+      dataset: "{{ env_var('DBT_PROD_DATASET', 'analytics_prod') }}"
+      threads: 16
+      timeout_seconds: 1200
+      location: US
+      keyfile: "{{ env_var('GCP_KEYFILE_PATH') }}"
+      priority: batch  # Lower cost for scheduled runs
+      # No byte limit in prod
+
+# ============================================================
+# ENVIRONMENT VARIABLES TO SET:
+# ============================================================
+# export GCP_PROJECT_ID="your-gcp-project"
+# export GCP_KEYFILE_PATH="~/.dbt/service_account.json"
+# export DBT_DEV_DATASET="dbt_dev_yourname"
+# export DBT_CI_DATASET="dbt_ci"
+# export DBT_PROD_DATASET="analytics_prod"
+# ============================================================

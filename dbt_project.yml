@@ -1,0 +1,91 @@
+name: 'dbt_advanced_olist'
+version: '1.0.0'
+config-version: 2
+
+profile: 'dbt_advanced_olist'
+
+model-paths: ["models"]
+analysis-paths: ["analyses"]
+test-paths: ["tests"]
+seed-paths: ["seeds"]
+macro-paths: ["macros"]
+snapshot-paths: ["snapshots"]
+
+clean-targets:
+  - "target"
+  - "dbt_packages"
+
+# ============================================================
+# MODEL CONFIGURATIONS
+# ============================================================
+models:
+  dbt_advanced_olist:
+    staging:
+      +materialized: view
+      +tags: ["staging", "daily"]
+      +schema: staging
+    
+    intermediate:
+      +materialized: view
+      +tags: ["intermediate"]
+      +schema: intermediate
+    
+    marts:
+      +materialized: table
+      +tags: ["marts", "bi"]
+      +schema: marts
+      # BigQuery optimizations
+      +partition_by:
+        field: order_date
+        data_type: date
+        granularity: month
+
+# ============================================================
+# SEED CONFIGURATIONS
+# ============================================================
+seeds:
+  dbt_advanced_olist:
+    +schema: seeds
+
+# ============================================================
+# TEST CONFIGURATIONS
+# ============================================================
+tests:
+  dbt_advanced_olist:
+    +severity: error
+    +store_failures: true
+
+# ============================================================
+# VARIABLES
+# ============================================================
+vars:
+  # Environment controls
+  dev_limit: 1000
+  start_date: '2017-01-01'
+  end_date: '2017-12-31'
+  
+  # Feature flags
+  enable_audit_logging: true
+  enable_row_count_checks: true
+  
+  # Thresholds for tests
+  min_order_total: 0
+  max_order_total: 100000
+  freshness_warn_hours: 24
+  freshness_error_hours: 48
+
+# ============================================================
+# HOOKS (Advanced Pattern)
+# ============================================================
+on-run-start:
+  - "{{ log_run_start() }}"
+
+on-run-end:
+  - "{{ log_run_end(results) }}"
+
+# ============================================================
+# QUERY COMMENT (for BigQuery audit logs)
+# ============================================================
+query-comment:
+  comment: "dbt {{ dbt_version }} | model: {{ node.name }} | schema: {{ node.schema }}"
+  append: true
