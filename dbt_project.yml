@@ -7,7 +7,7 @@ profile: 'dbt_advanced_olist'
 model-paths: ["models"]
 analysis-paths: ["analyses"]
 test-paths: ["tests"]
-seed-paths: ["seeds"]
+seed-paths: ["data"]
 macro-paths: ["macros"]
 snapshot-paths: ["snapshots"]
 
@@ -45,7 +45,16 @@ models:
 # ============================================================
 seeds:
   dbt_advanced_olist:
-    +schema: seeds
+    +schema: source
+    products:
+      +column_types:
+        product_name_lenght: float64
+        product_description_lenght: float64
+        product_photos_qty: float64
+        product_weight_g: float64
+        product_length_cm: float64
+        product_height_cm: float64
+        product_width_cm: float64
 
 # ============================================================
 # TEST CONFIGURATIONS

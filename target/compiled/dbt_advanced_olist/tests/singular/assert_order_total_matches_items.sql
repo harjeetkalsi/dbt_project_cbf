@@ -14,7 +14,7 @@ with order_totals_from_items as (
     select
         order_id,
         sum(item_total) as calculated_total
-    from `big-query-dbt-481111`.`dbt_dev_yourname_staging`.`stg_order_items`
+    from `arcane-pillar-485809-b6`.`raw_olist_staging`.`stg_order_items`
     group by 1
 ),
 
@@ -22,7 +22,7 @@ order_totals_from_orders as (
     select
         order_id,
         order_total
-    from `big-query-dbt-481111`.`dbt_dev_yourname_intermediate`.`int_orders_enriched`
+    from `arcane-pillar-485809-b6`.`raw_olist_intermediate`.`int_orders_enriched`
 ),
 
 mismatches as (

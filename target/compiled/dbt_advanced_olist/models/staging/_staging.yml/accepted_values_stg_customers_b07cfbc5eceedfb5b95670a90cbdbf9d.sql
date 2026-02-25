@@ -8,7 +8,7 @@ with all_values as (
         customer_region as value_field,
         count(*) as n_records
 
-    from `big-query-dbt-481111`.`dbt_dev_yourname_staging`.`stg_customers`
+    from `arcane-pillar-485809-b6`.`raw_olist_staging`.`stg_customers`
     group by customer_region
 
 )

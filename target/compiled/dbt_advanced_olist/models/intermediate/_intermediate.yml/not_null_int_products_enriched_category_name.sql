@@ -5,7 +5,7 @@
 
 
 select *
-from `big-query-dbt-481111`.`dbt_dev_yourname_intermediate`.`int_products_enriched`
+from `arcane-pillar-485809-b6`.`raw_olist_intermediate`.`int_products_enriched`
 where category_name is null
 
 

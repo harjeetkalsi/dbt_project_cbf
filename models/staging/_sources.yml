@@ -1,10 +1,10 @@
 version: 2
 
 sources:
-  - name: raw_olist
+  - name: raw_olist_source
     description: "Real e-commerce data from Olist Brazilian marketplace (10K orders sample)"
-    database: big-query-dbt-481111
-    schema: raw_olist
+    database: arcane-pillar-485809-b6
+    schema: raw_olist_source
     
     # ============================================================
     # SOURCE FRESHNESS CONFIGURATION

@@ -14,7 +14,7 @@
 */
 
 with source as (
-    select * from `big-query-dbt-481111`.`raw_olist`.`orders`
+    select * from `arcane-pillar-485809-b6`.`raw_olist_source`.`orders`
 ),
 
 renamed as (
@@ -27,6 +27,11 @@ renamed as (
         
         -- Order Status
         order_status,
+        case
+    when order_status = 'delivered' then 'Completed'
+    when order_status = 'canceled' then 'Canceled'
+    else 'In Progress'
+end as order_status_group,
         
         -- Timestamps (cast to proper types)
         cast(order_purchase_timestamp as timestamp) as ordered_at,

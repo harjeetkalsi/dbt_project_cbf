@@ -8,7 +8,7 @@ with all_values as (
         order_size_bucket as value_field,
         count(*) as n_records
 
-    from `big-query-dbt-481111`.`dbt_dev_yourname_marts`.`fct_orders`
+    from `arcane-pillar-485809-b6`.`raw_olist_marts`.`fct_orders`
     group by order_size_bucket
 
 )

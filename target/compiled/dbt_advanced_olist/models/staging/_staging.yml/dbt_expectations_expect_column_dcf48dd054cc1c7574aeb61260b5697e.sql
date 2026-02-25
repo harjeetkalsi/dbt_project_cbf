@@ -15,7 +15,7 @@
     ) = 2 as expression
 
 
-    from `big-query-dbt-481111`.`dbt_dev_yourname_staging`.`stg_customers`
+    from `arcane-pillar-485809-b6`.`raw_olist_staging`.`stg_customers`
     
 
 ),

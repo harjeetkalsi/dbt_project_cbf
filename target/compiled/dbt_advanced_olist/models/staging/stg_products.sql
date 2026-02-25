@@ -12,7 +12,7 @@
 */
 
 with source as (
-    select * from `big-query-dbt-481111`.`raw_olist`.`products`
+    select * from `arcane-pillar-485809-b6`.`raw_olist_source`.`products`
 ),
 
 renamed as (

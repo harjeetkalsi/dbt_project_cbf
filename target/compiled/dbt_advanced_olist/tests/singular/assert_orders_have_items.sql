@@ -10,10 +10,10 @@
   Note: Sample data may have orphaned records - set to warn
 */
 with orders as (
-    select order_id from `big-query-dbt-481111`.`dbt_dev_yourname_staging`.`stg_orders`
+    select order_id from `arcane-pillar-485809-b6`.`raw_olist_staging`.`stg_orders`
 ),
 order_items as (
-    select distinct order_id from `big-query-dbt-481111`.`dbt_dev_yourname_staging`.`stg_order_items`
+    select distinct order_id from `arcane-pillar-485809-b6`.`raw_olist_staging`.`stg_order_items`
 ),
 orders_without_items as (
     select

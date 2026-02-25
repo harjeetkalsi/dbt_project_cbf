@@ -1,6 +1,6 @@
 
 
-  create or replace view `big-query-dbt-481111`.`dbt_dev_yourname_staging`.`stg_order_items`
+  create or replace view `arcane-pillar-485809-b6`.`raw_olist_staging`.`stg_order_items`
   OPTIONS()
   as 
 
@@ -17,7 +17,7 @@
 */
 
 with source as (
-    select * from `big-query-dbt-481111`.`raw_olist`.`order_items`
+    select * from `arcane-pillar-485809-b6`.`raw_olist_source`.`order_items`
 ),
 
 renamed as (

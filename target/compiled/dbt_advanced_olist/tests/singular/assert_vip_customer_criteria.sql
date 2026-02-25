@@ -14,7 +14,7 @@ with vip_customers as (
         customer_segment,
         lifetime_revenue,
         lifetime_orders
-    from `big-query-dbt-481111`.`dbt_dev_yourname_marts`.`dim_customers`
+    from `arcane-pillar-485809-b6`.`raw_olist_marts`.`dim_customers`
     where customer_segment = 'VIP'
 ),
 
@@ -36,7 +36,7 @@ should_be_vips as (
         lifetime_revenue,
         lifetime_orders,
         'Should be VIP but is not' as violation
-    from `big-query-dbt-481111`.`dbt_dev_yourname_marts`.`dim_customers`
+    from `arcane-pillar-485809-b6`.`raw_olist_marts`.`dim_customers`
     where lifetime_revenue >= 500
       and lifetime_orders >= 3
       and customer_segment != 'VIP'

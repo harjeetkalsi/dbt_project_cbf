@@ -5,7 +5,7 @@
 
 
 select *
-from `big-query-dbt-481111`.`dbt_dev_yourname_staging`.`stg_customers`
+from `arcane-pillar-485809-b6`.`raw_olist_staging`.`stg_customers`
 where customer_id is null
 
 

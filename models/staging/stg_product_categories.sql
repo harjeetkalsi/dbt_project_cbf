@@ -10,7 +10,7 @@
   Source: Olist Brazilian E-commerce
 */
 with source as (
-    select * from {{ source('raw_olist', 'product_category_name_translation') }}
+    select * from {{ source('raw_olist_source', 'product_category_name_translation') }}
 ),
 renamed as (
     select

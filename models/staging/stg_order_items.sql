@@ -18,7 +18,7 @@
 */
 
 with source as (
-    select * from {{ source('raw_olist', 'order_items') }}
+    select * from {{ source('raw_olist_source', 'order_items') }}
 ),
 
 renamed as (

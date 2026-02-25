@@ -14,15 +14,15 @@
 */
 
 with orders as (
-    select * from `big-query-dbt-481111`.`dbt_dev_yourname_intermediate`.`int_orders_enriched`
+    select * from `arcane-pillar-485809-b6`.`raw_olist_intermediate`.`int_orders_enriched`
 ),
 
 products as (
-    select * from `big-query-dbt-481111`.`dbt_dev_yourname_intermediate`.`int_products_enriched`
+    select * from `arcane-pillar-485809-b6`.`raw_olist_intermediate`.`int_products_enriched`
 ),
 
 order_items as (
-    select * from `big-query-dbt-481111`.`dbt_dev_yourname_staging`.`stg_order_items`
+    select * from `arcane-pillar-485809-b6`.`raw_olist_staging`.`stg_order_items`
 ),
 
 -- Get primary category per order (highest value item)

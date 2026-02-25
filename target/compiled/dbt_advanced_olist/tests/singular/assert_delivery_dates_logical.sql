@@ -18,7 +18,7 @@ with orders as (
         approved_at,
         shipped_at,
         delivered_at
-    from `big-query-dbt-481111`.`dbt_dev_yourname_staging`.`stg_orders`
+    from `arcane-pillar-485809-b6`.`raw_olist_staging`.`stg_orders`
 ),
 
 date_violations as (

@@ -7,15 +7,15 @@
 */
 
 with products as (
-    select * from `big-query-dbt-481111`.`dbt_dev_yourname_staging`.`stg_products`
+    select * from `arcane-pillar-485809-b6`.`raw_olist_staging`.`stg_products`
 ),
 
 categories as (
-    select * from `big-query-dbt-481111`.`dbt_dev_yourname_staging`.`stg_product_categories`
+    select * from `arcane-pillar-485809-b6`.`raw_olist_staging`.`stg_product_categories`
 ),
 
 order_items as (
-    select * from `big-query-dbt-481111`.`dbt_dev_yourname_staging`.`stg_order_items`
+    select * from `arcane-pillar-485809-b6`.`raw_olist_staging`.`stg_order_items`
 ),
 
 -- Calculate product-level sales metrics

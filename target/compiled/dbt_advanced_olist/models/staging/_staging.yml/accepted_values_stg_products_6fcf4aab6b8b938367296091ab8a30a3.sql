@@ -8,7 +8,7 @@ with all_values as (
         size_category as value_field,
         count(*) as n_records
 
-    from (select * from `big-query-dbt-481111`.`dbt_dev_yourname_staging`.`stg_products` where size_category is not null) dbt_subquery
+    from (select * from `arcane-pillar-485809-b6`.`raw_olist_staging`.`stg_products` where size_category is not null) dbt_subquery
     group by size_category
 
 )

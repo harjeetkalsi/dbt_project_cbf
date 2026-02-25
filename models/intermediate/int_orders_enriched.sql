@@ -1,20 +1,14 @@
-{{
-  config(
-    materialized='view',
-    tags=['intermediate', 'orders']
-  )
-}}
-{{
-  config(
-    materialized='table',  -- Consider: 'incremental' for large datasets
+{{ config(
+    materialized='table',
+    tags=['intermediate', 'orders'],
     partition_by={
       'field': 'order_date',
       'data_type': 'date',
       'granularity': 'month'
     },
     cluster_by=['customer_id', 'order_status']
-  )
-}}
+) }}
+
 /*
   INTERMEDIATE MODEL: int_orders_enriched
   
@@ -38,7 +32,6 @@ customers as (
     select * from {{ ref('stg_customers') }}
 ),
 
--- Aggregate order items to order level
 order_totals as (
     select
         order_id,
@@ -53,10 +46,8 @@ order_totals as (
     group by 1
 ),
 
--- Join everything together
 enriched as (
     select
-        -- Order info
         o.order_id,
         o.order_status,
         o.ordered_at,
@@ -68,15 +59,13 @@ enriched as (
         o.delivery_days,
         o.is_late_delivery,
         o.days_late,
-        
-        -- Customer info
+
         o.customer_id,
         c.customer_unique_id,
         c.customer_city,
         c.customer_state,
         c.customer_region,
-        
-        -- Order totals
+
         coalesce(ot.item_count, 0) as item_count,
         coalesce(ot.unique_products, 0) as unique_products,
         coalesce(ot.subtotal, 0) as subtotal,
@@ -84,16 +73,14 @@ enriched as (
         coalesce(ot.order_total, 0) as order_total,
         coalesce(ot.avg_item_price, 0) as avg_item_price,
         coalesce(ot.max_item_price, 0) as max_item_price,
-        
-        -- Derived: Order size bucket
+
         case
             when coalesce(ot.order_total, 0) < 50 then 'Small'
             when coalesce(ot.order_total, 0) < 200 then 'Medium'
             when coalesce(ot.order_total, 0) < 500 then 'Large'
             else 'Premium'
         end as order_size_bucket,
-        
-        -- Time components (using macro)
+
         {{ generate_date_parts('o.order_date') }}
 
     from orders o

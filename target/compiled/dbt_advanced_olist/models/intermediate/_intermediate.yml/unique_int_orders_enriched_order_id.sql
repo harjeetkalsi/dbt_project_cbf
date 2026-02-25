@@ -5,7 +5,7 @@
 with dbt_test__target as (
 
   select order_id as unique_field
-  from `big-query-dbt-481111`.`dbt_dev_yourname_intermediate`.`int_orders_enriched`
+  from `arcane-pillar-485809-b6`.`raw_olist_intermediate`.`int_orders_enriched`
   where order_id is not null
 
 )

@@ -2,7 +2,7 @@
   
     
 
-    create or replace table `big-query-dbt-481111`.`dbt_dev_yourname_marts`.`dim_date`
+    create or replace table `arcane-pillar-485809-b6`.`raw_olist_marts`.`dim_date`
       
     partition by date_trunc(date_key, month)
     

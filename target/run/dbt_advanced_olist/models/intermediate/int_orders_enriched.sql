@@ -1,8 +1,16 @@
 
+  
+    
 
-  create or replace view `big-query-dbt-481111`.`dbt_dev_yourname_intermediate`.`int_orders_enriched`
-  OPTIONS()
-  as 
+    create or replace table `arcane-pillar-485809-b6`.`raw_olist_intermediate`.`int_orders_enriched`
+      
+    partition by date_trunc(order_date, month)
+    cluster by customer_id, order_status
+
+    
+    OPTIONS()
+    as (
+      
 
 /*
   INTERMEDIATE MODEL: int_orders_enriched
@@ -16,18 +24,17 @@
 */
 
 with orders as (
-    select * from `big-query-dbt-481111`.`dbt_dev_yourname_staging`.`stg_orders`
+    select * from `arcane-pillar-485809-b6`.`raw_olist_staging`.`stg_orders`
 ),
 
 order_items as (
-    select * from `big-query-dbt-481111`.`dbt_dev_yourname_staging`.`stg_order_items`
+    select * from `arcane-pillar-485809-b6`.`raw_olist_staging`.`stg_order_items`
 ),
 
 customers as (
-    select * from `big-query-dbt-481111`.`dbt_dev_yourname_staging`.`stg_customers`
+    select * from `arcane-pillar-485809-b6`.`raw_olist_staging`.`stg_customers`
 ),
 
--- Aggregate order items to order level
 order_totals as (
     select
         order_id,
@@ -42,10 +49,8 @@ order_totals as (
     group by 1
 ),
 
--- Join everything together
 enriched as (
     select
-        -- Order info
         o.order_id,
         o.order_status,
         o.ordered_at,
@@ -57,15 +62,13 @@ enriched as (
         o.delivery_days,
         o.is_late_delivery,
         o.days_late,
-        
-        -- Customer info
+
         o.customer_id,
         c.customer_unique_id,
         c.customer_city,
         c.customer_state,
         c.customer_region,
-        
-        -- Order totals
+
         coalesce(ot.item_count, 0) as item_count,
         coalesce(ot.unique_products, 0) as unique_products,
         coalesce(ot.subtotal, 0) as subtotal,
@@ -73,16 +76,14 @@ enriched as (
         coalesce(ot.order_total, 0) as order_total,
         coalesce(ot.avg_item_price, 0) as avg_item_price,
         coalesce(ot.max_item_price, 0) as max_item_price,
-        
-        -- Derived: Order size bucket
+
         case
             when coalesce(ot.order_total, 0) < 50 then 'Small'
             when coalesce(ot.order_total, 0) < 200 then 'Medium'
             when coalesce(ot.order_total, 0) < 500 then 'Large'
             else 'Premium'
         end as order_size_bucket,
-        
-        -- Time components (using macro)
+
         extract(year from o.order_date) as order_year,
     extract(month from o.order_date) as order_month,
     extract(quarter from o.order_date) as order_quarter,
@@ -99,5 +100,6 @@ enriched as (
     left join order_totals ot on o.order_id = ot.order_id
 )
 
-select * from enriched;
-
+select * from enriched
+    );
+  

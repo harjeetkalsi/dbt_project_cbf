@@ -5,7 +5,7 @@
 
 
 select *
-from `big-query-dbt-481111`.`dbt_dev_yourname_marts`.`fct_orders`
+from `arcane-pillar-485809-b6`.`raw_olist_marts`.`fct_orders`
 where order_status is null
 
 

@@ -14,12 +14,12 @@
 */
 
 with orders as (
-    select * from `big-query-dbt-481111`.`dbt_dev_yourname_intermediate`.`int_orders_enriched`
+    select * from `arcane-pillar-485809-b6`.`raw_olist_intermediate`.`int_orders_enriched`
     where order_status = 'delivered'  -- Only count completed orders
 ),
 
 customers as (
-    select * from `big-query-dbt-481111`.`dbt_dev_yourname_staging`.`stg_customers`
+    select * from `arcane-pillar-485809-b6`.`raw_olist_staging`.`stg_customers`
 ),
 
 -- Calculate customer metrics
@@ -83,7 +83,7 @@ final as (
         
         -- Customer Segmentation
         case
-            when coalesce(m.lifetime_revenue, 0) >= 400 and coalesce(m.lifetime_orders, 0) >= 3 then 'VIP'
+            when coalesce(m.lifetime_revenue, 0) >= 500 and coalesce(m.lifetime_orders, 0) >= 3 then 'VIP'
             when coalesce(m.lifetime_revenue, 0) >= 300 then 'High Value'
             when coalesce(m.lifetime_revenue, 0) >= 100 then 'Medium Value'
             when coalesce(m.lifetime_revenue, 0) > 0 then 'Low Value'
