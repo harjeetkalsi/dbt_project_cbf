@@ -1,20 +1,78 @@
 
-      merge into `big-query-dbt-481111`.`snapshots`.`customers_snapshot` as DBT_INTERNAL_DEST
-    using `big-query-dbt-481111`.`snapshots`.`customers_snapshot__dbt_tmp` as DBT_INTERNAL_SOURCE
-    on DBT_INTERNAL_SOURCE.dbt_scd_id = DBT_INTERNAL_DEST.dbt_scd_id
+      
+  
+    
 
-    when matched
-     
-       and DBT_INTERNAL_DEST.dbt_valid_to is null
-     
-     and DBT_INTERNAL_SOURCE.dbt_change_type in ('update', 'delete')
-        then update
-        set dbt_valid_to = DBT_INTERNAL_SOURCE.dbt_valid_to
+    create or replace table `arcane-pillar-485809-b6`.`snapshots`.`customers_snapshot`
+      
+    
+    
 
-    when not matched
-     and DBT_INTERNAL_SOURCE.dbt_change_type = 'insert'
-        then insert (`customer_id`, `customer_unique_id`, `customer_city`, `customer_state`, `customer_zip_code`, `customer_region`, `_snapshot_at`, `dbt_updated_at`, `dbt_valid_from`, `dbt_valid_to`, `dbt_scd_id`)
-        values (`customer_id`, `customer_unique_id`, `customer_city`, `customer_state`, `customer_zip_code`, `customer_region`, `_snapshot_at`, `dbt_updated_at`, `dbt_valid_from`, `dbt_valid_to`, `dbt_scd_id`)
+    
+    OPTIONS()
+    as (
+      
+    
+
+    select *,
+        to_hex(md5(concat(coalesce(cast(customer_id as string), ''), '|',coalesce(cast(
+    current_timestamp()
+ as string), '')))) as dbt_scd_id,
+        
+    current_timestamp()
+ as dbt_updated_at,
+        
+    current_timestamp()
+ as dbt_valid_from,
+        
+  
+  coalesce(nullif(
+    current_timestamp()
+, 
+    current_timestamp()
+), null)
+  as dbt_valid_to
+from (
+        
 
 
+
+/*
+  SNAPSHOT: customers_snapshot
+  
+  Purpose: Track historical changes to customer data (SCD Type 2)
+  
+  Strategy: 'check' - monitors specified columns for changes
+  
+  Tracked columns:
+  - customer_city
+  - customer_state  
+  - customer_zip_code
+  
+  Added columns:
+  - dbt_valid_from: When this version became active
+  - dbt_valid_to: When this version was superseded (NULL = current)
+  - dbt_scd_id: Unique identifier for this version
+  
+  Usage:
+    dbt snapshot
+*/
+
+select
+    customer_id,
+    customer_unique_id,
+    customer_city,
+    customer_state,
+    customer_zip_code,
+    customer_region,
+    current_timestamp() as _snapshot_at
+
+from `arcane-pillar-485809-b6`.`raw_olist_staging`.`stg_customers`
+
+    ) sbq
+
+
+
+    );
+  
   

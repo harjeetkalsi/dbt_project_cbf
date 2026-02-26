@@ -6,7 +6,7 @@
     from (
       
         select *
-        from `big-query-dbt-481111`.`dbt_dev_yourname_dbt_test__audit`.`relationships_stg_order_items_85fcc371bcae46211ede4a7fca07283f`
+        from `arcane-pillar-485809-b6`.`raw_olist_dbt_test__audit`.`relationships_stg_order_items_85fcc371bcae46211ede4a7fca07283f`
     
       
     ) dbt_internal_test

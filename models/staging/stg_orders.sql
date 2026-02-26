@@ -65,6 +65,14 @@ end as order_status_group,
             then true
             else false
         end as is_late_delivery,
+
+        case
+            when order_status = 'delivered' 
+            then 'Completed'
+            when order_status = 'canceled' 
+            then 'Canceled'
+            else 'In Progress'
+        end as order_status_group,
         
         -- Derived: Days late (if late)
         case

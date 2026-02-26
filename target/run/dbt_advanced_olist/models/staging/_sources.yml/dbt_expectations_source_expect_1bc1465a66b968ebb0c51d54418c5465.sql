@@ -6,7 +6,7 @@
     from (
       
         select *
-        from `arcane-pillar-485809-b6`.`raw_olist_dbt_test__audit`.`not_null_stg_order_items_item_freight`
+        from `arcane-pillar-485809-b6`.`raw_olist_dbt_test__audit`.`dbt_expectations_source_expect_1bc1465a66b968ebb0c51d54418c5465`
     
       
     ) dbt_internal_test
