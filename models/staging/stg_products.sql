@@ -41,6 +41,7 @@ renamed as (
         
         -- Derived: Size classification
         case
+            when cast(product_weight_g as numeric) < 250 then 'Extra Small'
             when cast(product_weight_g as numeric) < 500 then 'Small'
             when cast(product_weight_g as numeric) < 2000 then 'Medium'
             when cast(product_weight_g as numeric) < 10000 then 'Large'
