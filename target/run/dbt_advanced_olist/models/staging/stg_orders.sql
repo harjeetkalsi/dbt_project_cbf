@@ -32,10 +32,10 @@ renamed as (
         -- Order Status
         order_status,
         case
-    when order_status = 'delivered' then 'Completed'
-    when order_status = 'canceled' then 'Canceled'
-    else 'In Progress'
-end as order_status_group,
+            when order_status = 'delivered' then 'Completed'
+            when order_status = 'canceled' then 'Canceled'
+            else 'In Progress'
+        end as order_status_group,
         
         -- Timestamps (cast to proper types)
         cast(order_purchase_timestamp as timestamp) as ordered_at,
@@ -65,13 +65,6 @@ end as order_status_group,
             else false
         end as is_late_delivery,
 
-        case
-            when order_status = 'delivered' 
-            then 'Completed'
-            when order_status = 'canceled' 
-            then 'Canceled'
-            else 'In Progress'
-        end as order_status_group,
         
         -- Derived: Days late (if late)
         case

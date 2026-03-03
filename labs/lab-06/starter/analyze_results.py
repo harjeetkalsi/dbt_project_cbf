@@ -179,13 +179,16 @@ def analyze_by_layer(timings: List[Dict[str, Any]]) -> Dict[str, float]:
     
     TODO: Implement this function
     """
-    # TODO: Initialize layer totals
-    # TODO: Iterate through timings
-    # TODO: Categorize each model by its prefix
-    # TODO: Sum up times for each layer
-    # TODO: Return the layer totals
-    
-    pass  # Remove this and implement
+    # Group by layer
+    staging_time = sum(t['total_seconds'] for t in timings if 'stg_' in t['node'])
+    intermediate_time = sum(t['total_seconds'] for t in timings if 'int_' in
+    t['node'])
+    marts_time = sum(t['total_seconds'] for t in timings if t['node'] in
+    ['fct_orders', 'dim_customers'])
+    print(f"\nTime by layer:")
+    print(f" Staging: {staging_time:.2f}s")
+    print(f" Intermediate: {intermediate_time:.2f}s")
+    print(f" Marts: {marts_time:.2f}s")
 
 
 def calculate_critical_path(timings: List[Dict[str, Any]], manifest_path: str = "target/manifest.json") -> List[str]:
@@ -244,7 +247,6 @@ if __name__ == "__main__":
         
         # Analyze timing
         timings = analyze_timing(results)
-        
         # Print basic report
         print_report(timings)
         
@@ -263,14 +265,14 @@ if __name__ == "__main__":
         # else:
         #     print("  ✅ No bottlenecks found!")
         
-        # # Analyze by layer
-        # print("\n" + "=" * 60)
-        # print("TIME BY LAYER")
-        # print("=" * 60)
-        # layer_times = analyze_by_layer(timings)
-        # if layer_times:
-        #     for layer, time in layer_times.items():
-        #         print(f"  {layer.capitalize()}: {time:.2f}s")
+        # Analyze by layer
+        print("\n" + "=" * 60)
+        print("TIME BY LAYER")
+        print("=" * 60)
+        layer_times = analyze_by_layer(timings)
+        if layer_times:
+            for layer, time in layer_times.items():
+                print(f"  {layer.capitalize()}: {time:.2f}s")
         
         # # Generate recommendations
         # print("\n" + "=" * 60)

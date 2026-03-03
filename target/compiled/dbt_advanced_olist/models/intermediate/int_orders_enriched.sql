@@ -1,5 +1,3 @@
-
-
 /*
   INTERMEDIATE MODEL: int_orders_enriched
   
