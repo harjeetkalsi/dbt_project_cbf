@@ -306,6 +306,52 @@ models:
       - name: _loaded_at
         data_type: timestamp
 
+  - name: fct_delivery_performance
+    description: "One row per order. Delivery performance fact for Ops reporting by date, region, and order size bucket."
+    columns:
+      - name: order_id
+        description: "Primary key for the fact table (one row per order)."
+        tests:
+          - not_null
+          - unique
+
+      - name: customer_id
+        description: "Customer identifier (joins to dim_customers)."
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_customers')
+              field: customer_id
+
+      - name: order_date
+        description: "Order date used for partitioning and monthly trend reporting."
+        tests:
+          - not_null
+
+      - name: customer_region
+        description: "Region derived in intermediate layer for Ops region reporting."
+        tests:
+          - not_null
+
+      - name: order_size_bucket
+        description: "Size category already defined in int_orders_enriched (used to compare late delivery rates by bucket)."
+
+      - name: is_late_delivery
+        description: "Boolean flag indicating whether delivery missed the estimated date."
+
+      - name: days_late
+        description: "How many days late the delivery was (0 or null if not late)."
+
+      - name: delivery_category
+        description: "Derived label for delivery outcome: On Time, Late, In Progress, Canceled."
+        tests:
+          - accepted_values:
+              values: ['On Time', 'Late', 'In Progress', 'Canceled', 'Unknown']      
+
+
+
+
+
 unit_tests:
   - name: test_customer_segment_vip
     description: "VIP requires >= $500 revenue AND >= 3 orders"
@@ -367,3 +413,62 @@ unit_tests:
       format: dict
       rows:
         - {customer_id: 'c3', customer_segment: 'No Orders'}
+
+  - name: ut_fct_delivery_performance_delivery_category
+    description: "Checks delivery_category and late_delivery_flag are derived correctly from status and is_late_delivery."
+    model: fct_delivery_performance
+
+    given:
+      - input: ref('int_orders_enriched')
+        rows:
+          - {
+              order_id: "order_1",
+              customer_id: "cust_1",
+              order_status: "delivered",
+              order_date: "2017-01-15",
+              customer_region: "Southeast",
+              order_size_bucket: "Small",
+              delivery_days: 5,
+              is_late_delivery: false,
+              days_late: 0
+            }
+          - {
+              order_id: "order_2",
+              customer_id: "cust_2",
+              order_status: "delivered",
+              order_date: "2017-01-15",
+              customer_region: "Southeast",
+              order_size_bucket: "Large",
+              delivery_days: 12,
+              is_late_delivery: true,
+              days_late: 3
+            }
+          - {
+              order_id: "order_3",
+              customer_id: "cust_3",
+              order_status: "shipped",
+              order_date: "2017-01-15",
+              customer_region: "North",
+              order_size_bucket: "Medium",
+              delivery_days: null,
+              is_late_delivery: false,
+              days_late: null
+            }
+          - {
+              order_id: "order_4",
+              customer_id: "cust_4",
+              order_status: "canceled",
+              order_date: "2017-01-15",
+              customer_region: "North",
+              order_size_bucket: "Small",
+              delivery_days: null,
+              is_late_delivery: false,
+              days_late: null
+            }
+
+    expect:
+      rows:
+        - { order_id: "order_1", delivery_category: "On Time", late_delivery_flag: 0 }
+        - { order_id: "order_2", delivery_category: "Late", late_delivery_flag: 1 }
+        - { order_id: "order_3", delivery_category: "In Progress", late_delivery_flag: 0 }
+        - { order_id: "order_4", delivery_category: "Canceled", late_delivery_flag: 0 }      
