@@ -74,5 +74,47 @@
       "marts": 0.0,
       "other": 4.76
     }
+  },
+  {
+    "timestamp": "2026-02-26T12:30:09.142508",
+    "total_time": 18.31,
+    "model_count": 10,
+    "slowest_model": {
+      "node": "dim_date",
+      "type": "model",
+      "unique_id": "model.dbt_advanced_olist.dim_date",
+      "status": "success",
+      "total_seconds": 7.2,
+      "compile_seconds": 2.51,
+      "execute_seconds": 4.67
+    },
+    "avg_time": 1.831,
+    "layer_breakdown": {
+      "staging": 9.34,
+      "intermediate": 1.77,
+      "marts": 7.2,
+      "other": 0.0
+    }
+  },
+  {
+    "timestamp": "2026-02-26T12:31:19.683599",
+    "total_time": 18.31,
+    "model_count": 10,
+    "slowest_model": {
+      "node": "dim_date",
+      "type": "model",
+      "unique_id": "model.dbt_advanced_olist.dim_date",
+      "status": "success",
+      "total_seconds": 7.2,
+      "compile_seconds": 2.51,
+      "execute_seconds": 4.67
+    },
+    "avg_time": 1.831,
+    "layer_breakdown": {
+      "staging": 9.34,
+      "intermediate": 1.77,
+      "marts": 7.2,
+      "other": 0.0
+    }
   }
 ]
